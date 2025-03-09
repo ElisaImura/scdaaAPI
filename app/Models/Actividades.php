@@ -20,4 +20,14 @@ class Actividades extends Model
         'act_estado',
         'act_foto'
     ];
+
+    public function tipoActividad()
+    {
+        return $this->belongsTo(Tipos_Actividades::class, 'tpAct_id', 'tpAct_id');
+    }
+
+    public function ciclo()
+    {
+        return $this->hasOne(Act_Ciclo::class, 'act_id', 'act_id');
+    }
 }

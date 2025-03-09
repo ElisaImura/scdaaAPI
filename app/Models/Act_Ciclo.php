@@ -22,4 +22,21 @@ class Act_Ciclo extends Model
     {
         return $this->belongsTo(Usuario::class, 'uss_id');
     }
+
+    public function insumos()
+    {
+        return $this->hasManyThrough(
+            Insumos::class,
+            Act_Ciclo_Insumo::class,
+            'ci_id',  // Foreign key en act_ciclo_insumo
+            'ins_id', // Foreign key en insumos
+            'ci_id',  // Local key en act_ciclo
+            'ins_id'  // Local key en act_ciclo_insumo
+        );
+    }
+
+    public function lote()
+    {
+        return $this->belongsTo(Lotes::class, 'lot_id', 'lot_id');
+    }
 }

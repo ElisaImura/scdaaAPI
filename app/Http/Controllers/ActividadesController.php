@@ -14,8 +14,15 @@ class ActividadesController extends Controller
      */
     public function index()
     {
-        return response()->json(Actividades::all());
-    }
+        $actividades = Actividades::with([
+            'tipoActividad',  // Relación con tipos_actividades
+            'ciclo',          // Relación con act_ciclo
+            'ciclo.insumos',  // Relación con insumos a través de act_ciclo_insumo
+            'ciclo.lote'      // Relación con lotes (se agrega)
+        ])->get();
+    
+        return response()->json($actividades);
+    }   
 
     /**
      * Almacenar una nueva actividad.
@@ -55,12 +62,17 @@ class ActividadesController extends Controller
      */
     public function show($id)
     {
-        $actividad = Actividades::find($id);
-
+        $actividad = Actividades::with([
+            'tipoActividad',
+            'ciclo',
+            'ciclo.insumos',
+            'ciclo.lote' // Se agrega la relación con el lote
+        ])->find($id);
+    
         if (!$actividad) {
             return response()->json(['message' => 'Actividad no encontrada'], 404);
         }
-
+    
         return response()->json($actividad);
     }
 
