@@ -18,7 +18,8 @@ class DatabaseSeeder extends Seeder
             RolesSeeder::class,
             PermisosSeeder::class,
             TiposCultivoSeeder::class,
-            TiposActividadesSeeder::class
+            TiposActividadesSeeder::class,
+            UsuariosSeeder::class,
         ]);
         
     }
