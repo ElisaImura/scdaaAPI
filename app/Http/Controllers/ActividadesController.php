@@ -15,46 +15,66 @@ class ActividadesController extends Controller
     public function index()
     {
         $actividades = Actividades::with([
-            'tipoActividad',  // Relación con tipos_actividades
-            'ciclo',          // Relación con act_ciclo
-            'ciclo.insumos',  // Relación con insumos a través de act_ciclo_insumo
-            'ciclo.lote'      // Relación con lotes (se agrega)
+            'tipoActividad',
+            'ciclo.lote',
+            'ciclo.insumos' => function ($query) {
+                $query->select('insumos.*', 'act_ciclo_insumo.ins_cant')
+                      ->join('act_ciclo_insumo as aci', 'insumos.ins_id', '=', 'aci.ins_id'); // ✅ Agregamos alias 'aci'
+            }
         ])->get();
     
         return response()->json($actividades);
-    }   
+    }      
 
     /**
      * Almacenar una nueva actividad.
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'tpAct_id' => 'required|exists:tipos_actividades,tpAct_id',
+            'ci_id' => 'required|exists:ciclos,ci_id', // Asegurar que el ciclo existe
             'act_fecha' => 'required|string|max:191',
             'act_desc' => 'required|string|max:191',
             'act_estado' => 'required|integer|in:1,2,3',
             'act_foto' => 'nullable|string|max:191',
             'uss_id' => 'required|exists:users,uss_id',
             'insumos' => 'array',
-            'insumos.*' => 'exists:insumos,ins_id',
+            'insumos.*.ins_id' => 'exists:insumos,ins_id',
+            'insumos.*.ins_cant' => 'required|numeric|min:0',
         ]);
 
-        $actividad = Actividades::create($request->only(['tpAct_id', 'act_fecha', 'act_desc', 'act_estado', 'act_foto']));
+        // 📌 Crear la actividad
+        $actividad = Actividades::create([
+            'tpAct_id' => $validatedData['tpAct_id'],
+            'act_fecha' => $validatedData['act_fecha'],
+            'act_desc' => $validatedData['act_desc'],
+            'act_estado' => $validatedData['act_estado'],
+            'act_foto' => $validatedData['act_foto'] ?? null,
+        ]);
 
+        // 📌 Crear la relación en act_ciclo
         $actCiclo = Act_Ciclo::create([
             'act_id' => $actividad->act_id,
-            'uss_id' => $request->uss_id,
+            'ci_id' => $validatedData['ci_id'],
+            'uss_id' => $validatedData['uss_id'],
         ]);
 
-        foreach ($request->insumos as $insumoId) {
-            Act_Ciclo_Insumo::create([
-                'ci_id' => $actCiclo->ci_id,
-                'ins_id' => $insumoId,
-            ]);
+        // 📌 Relacionar insumos con sus cantidades
+        if (!empty($validatedData['insumos'])) {
+            foreach ($validatedData['insumos'] as $insumo) {
+                Act_Ciclo_Insumo::create([
+                    'act_ci_id' => $actCiclo->act_ci_id, // 💡 Asegurando que sea el ID correcto
+                    'ins_id' => $insumo['ins_id'],
+                    'ins_cant' => $insumo['ins_cant'],
+                ]);
+            }
         }
 
-        return response()->json($actividad, 201);
+        return response()->json([
+            'message' => 'Actividad creada con éxito',
+            'actividad' => $actividad->load('ciclo', 'ciclo.insumos'),
+        ], 201);
     }
 
     /**
@@ -66,13 +86,13 @@ class ActividadesController extends Controller
             'tipoActividad',
             'ciclo',
             'ciclo.insumos',
-            'ciclo.lote' // Se agrega la relación con el lote
+            'ciclo.lote'
         ])->find($id);
-    
+
         if (!$actividad) {
             return response()->json(['message' => 'Actividad no encontrada'], 404);
         }
-    
+
         return response()->json($actividad);
     }
 
@@ -89,9 +109,10 @@ class ActividadesController extends Controller
 
         $request->validate([
             'tpAct_id' => 'sometimes|exists:tipos_actividades,tpAct_id',
+            'ci_id' => 'sometimes|exists:ciclos,ci_id', // Validar ciclo en actualización
             'act_fecha' => 'sometimes|string|max:191',
             'act_desc' => 'sometimes|string|max:191',
-            'act_estado' => 'sometimes|integer|in:1,2,3', // Solo acepta 1, 2 o 3
+            'act_estado' => 'sometimes|integer|in:1,2,3',
             'act_foto' => 'nullable|string|max:191',
         ]);
 

@@ -10,16 +10,18 @@ class Act_Ciclo_Insumo extends Model
     use HasFactory;
 
     protected $table = 'act_ciclo_insumo';
-    protected $primaryKey = 'act_ci_id';
-    protected $fillable = ['ci_id', 'ins_id'];
+    protected $primaryKey = 'act_ci_ins_id';
+    protected $fillable = ['act_ci_id', 'ins_id', 'ins_cant'];
 
-    public function ciclo()
+    // Relación con Act_Ciclo
+    public function actCiclo()
     {
-        return $this->belongsTo(ActCiclo::class, 'ci_id');
+        return $this->belongsTo(Act_Ciclo::class, 'act_ci_id', 'act_ci_id');
     }
 
+    // Relación con Insumo
     public function insumo()
     {
-        return $this->belongsTo(Insumo::class, 'ins_id');
+        return $this->belongsTo(Insumos::class, 'ins_id', 'ins_id'); 
     }
 }

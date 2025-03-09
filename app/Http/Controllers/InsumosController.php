@@ -22,7 +22,6 @@ class InsumosController extends Controller
     {
         $fields = $request->validate([
             'ins_desc' => 'required|string|max:191',
-            'ins_cant' => 'required|numeric|min:0'
         ]);
 
         $insumo = Insumos::create($fields);
@@ -56,8 +55,7 @@ class InsumosController extends Controller
         }
 
         $fields = $request->validate([
-            'ins_desc' => 'sometimes|required|string|max:191',
-            'ins_cant' => 'sometimes|required|numeric|min:0'
+            'ins_desc' => 'sometimes|required|string|max:191'
         ]);
 
         $insumo->update($fields);

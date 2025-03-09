@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('act_ci_ins_id');
             $table->unsignedBigInteger('act_ci_id');
             $table->unsignedBigInteger('ins_id');
+            $table->float('ins_cant');
             $table->timestamps();
 
             $table->foreign('act_ci_id')->references('act_ci_id')->on('act_ciclo')->onDelete('cascade');

@@ -18,16 +18,18 @@ return new class extends Migration
             $table->unsignedBigInteger('uss_id');
             $table->timestamps();
 
+            // Definir claves foráneas correctamente
             $table->foreign('act_id')->references('act_id')->on('actividades')->onDelete('cascade');
             $table->foreign('uss_id')->references('uss_id')->on('users')->onDelete('cascade');
             $table->foreign('ci_id')->references('ci_id')->on('ciclos')->onDelete('cascade');
         });
     }
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('act_ciclos');
+        Schema::dropIfExists('act_ciclo'); // Corrección aquí
     }
 };
