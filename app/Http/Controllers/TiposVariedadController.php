@@ -80,4 +80,9 @@ class TiposVariedadController extends Controller
 
         return response()->json(['message' => 'Tipo de variedad eliminado correctamente']);
     }
+
+    public function getVariedadesPorCultivo($tpCul_id)
+    {
+        return Tipos_Variedad::where('tpCul_id', $tpCul_id)->get();
+    }
 }

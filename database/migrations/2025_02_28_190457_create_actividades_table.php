@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('act_id'); // Clave primaria
             $table->unsignedBigInteger('tpAct_id'); // Clave foránea
             $table->string('act_fecha', 191);
-            $table->string('act_desc', 191);
+            $table->string('act_desc', 191)->nullable();
             $table->integer('act_estado');
             $table->string('act_foto', 191)->nullable(); // Puede ser NULL
             $table->timestamps();

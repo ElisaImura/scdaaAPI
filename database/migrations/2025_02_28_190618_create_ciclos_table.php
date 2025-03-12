@@ -18,10 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('lot_id');
             $table->date('ci_fechaini');
             $table->date('ci_fechafin')->nullable();
-            $table->date('cos_fecha')->nullable();
             $table->float('cos_rendi')->nullable();
             $table->float('cos_hume')->nullable();
-            $table->date('sie_fecha')->nullable();
             $table->integer('sie_densidad')->nullable();
             $table->timestamps();
 

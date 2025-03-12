@@ -19,9 +19,10 @@ class ActividadesController extends Controller
             'ciclo.lote',
             'ciclo.insumos' => function ($query) {
                 $query->select('insumos.*', 'act_ciclo_insumo.ins_cant')
-                      ->join('act_ciclo_insumo as aci', 'insumos.ins_id', '=', 'aci.ins_id'); // ✅ Agregamos alias 'aci'
+                      ->join('act_ciclo_insumo as aci', 'insumos.ins_id', '=', 'aci.ins_id')
+                      ->distinct();  // Agregamos DISTINCT para evitar duplicados
             }
-        ])->get();
+        ])->get();        
     
         return response()->json($actividades);
     }      
@@ -35,7 +36,7 @@ class ActividadesController extends Controller
             'tpAct_id' => 'required|exists:tipos_actividades,tpAct_id',
             'ci_id' => 'required|exists:ciclos,ci_id', // Asegurar que el ciclo existe
             'act_fecha' => 'required|string|max:191',
-            'act_desc' => 'required|string|max:191',
+            'act_desc' => 'nullable|string|max:191',
             'act_estado' => 'required|integer|in:1,2,3',
             'act_foto' => 'nullable|string|max:191',
             'uss_id' => 'required|exists:users,uss_id',
@@ -48,7 +49,7 @@ class ActividadesController extends Controller
         $actividad = Actividades::create([
             'tpAct_id' => $validatedData['tpAct_id'],
             'act_fecha' => $validatedData['act_fecha'],
-            'act_desc' => $validatedData['act_desc'],
+            'act_desc' => $validatedData['act_desc'] ?? null,
             'act_estado' => $validatedData['act_estado'],
             'act_foto' => $validatedData['act_foto'] ?? null,
         ]);
@@ -85,7 +86,10 @@ class ActividadesController extends Controller
         $actividad = Actividades::with([
             'tipoActividad',
             'ciclo',
-            'ciclo.insumos',
+            'ciclo.insumos' => function ($query) {
+                $query->select('insumos.*', 'act_ciclo_insumo.ins_cant')
+                      ->join('act_ciclo_insumo as aci', 'insumos.ins_id', '=', 'aci.ins_id'); // ✅ Agregamos alias 'aci'
+            },
             'ciclo.lote'
         ])->find($id);
 

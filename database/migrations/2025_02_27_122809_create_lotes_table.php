@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('lotes', function (Blueprint $table) {
             $table->id("lot_id");
             $table->string("lot_nombre");
-            $table->string("lot_ubi");
+            $table->string("lot_ubi")->nullable();
             $table->timestamps();
         });
     }

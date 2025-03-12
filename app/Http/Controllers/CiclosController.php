@@ -27,10 +27,8 @@ class CiclosController extends Controller
             'lot_id' => 'required|exists:lotes,lot_id',
             'ci_fechaini' => 'required|date',
             'ci_fechafin' => 'nullable|date',
-            'cos_fecha' => 'nullable|date',
             'cos_rendi' => 'nullable|numeric',
             'cos_hume' => 'nullable|numeric',
-            'sie_fecha' => 'nullable|date',
             'sie_densidad' => 'nullable|integer',
         ]);
 

@@ -19,10 +19,8 @@ class Ciclos extends Model
         'lot_id',
         'ci_fechaini',
         'ci_fechafin',
-        'cos_fecha',
         'cos_rendi',
         'cos_hume',
-        'sie_fecha',
         'sie_densidad',
     ];
 

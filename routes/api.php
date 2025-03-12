@@ -34,6 +34,10 @@ Route::apiResource("tipos/cultivo", TiposCultivoController::class);
 
 Route::apiResource("tipos/variedad", TiposVariedadController::class);
 
+//Variedades por cultivo
+
+Route::get('/variedades/{tpCul_id}', [TiposVariedadController::class, 'getVariedadesPorCultivo']);
+
 //Clima
 
 Route::apiResource("clima", ClimaController::class);
