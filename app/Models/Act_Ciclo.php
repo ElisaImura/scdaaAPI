@@ -56,4 +56,9 @@ class Act_Ciclo extends Model
             'lot_id'  // Local key en ciclos
         );
     }
+
+    public function actCiclos()
+    {
+        return $this->hasMany(User::class, 'uss_id', 'uss_id');
+    }
 }

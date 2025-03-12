@@ -15,14 +15,17 @@ class ActividadesController extends Controller
     public function index()
     {
         $actividades = Actividades::with([
-            'tipoActividad',
-            'ciclo.lote',
+            'tipoActividad',  // Cargar el tipo de actividad
+            'ciclo.lote',  // Cargar la relación con el lote del ciclo
             'ciclo.insumos' => function ($query) {
                 $query->select('insumos.*', 'act_ciclo_insumo.ins_cant')
                       ->join('act_ciclo_insumo as aci', 'insumos.ins_id', '=', 'aci.ins_id')
-                      ->distinct();  // Agregamos DISTINCT para evitar duplicados
-            }
-        ])->get();        
+                      ->distinct();  // Usamos DISTINCT para evitar duplicados
+            },
+            'ciclo.actCiclos' => function ($query) {
+                $query->select('uss_id', 'uss_nombre');
+            },
+        ])->get();
     
         return response()->json($actividades);
     }      
