@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('tpVar_id');
             $table->unsignedBigInteger('uss_id');
             $table->unsignedBigInteger('lot_id');
+            $table->string('ci_nombre');
             $table->date('ci_fechaini');
             $table->date('ci_fechafin')->nullable();
             $table->float('cos_rendi')->nullable();

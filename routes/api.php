@@ -46,6 +46,10 @@ Route::apiResource("clima", ClimaController::class);
 
 Route::apiResource("ciclos", CiclosController::class);
 
+//Ciclos por Lote
+
+Route::get('/ciclos/lote/{lotId}', [CiclosController::class, 'getCiclosByLote']);
+
 //Actividades
 
 Route::apiResource("actividades", ActividadesController::class);

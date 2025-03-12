@@ -17,6 +17,7 @@ class Ciclos extends Model
         'tpVar_id',
         'uss_id',
         'lot_id',
+        'ci_nombre',
         'ci_fechaini',
         'ci_fechafin',
         'cos_rendi',
