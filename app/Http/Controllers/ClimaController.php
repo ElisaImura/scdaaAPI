@@ -23,10 +23,10 @@ class ClimaController extends Controller
     {
         $request->validate([
             'cl_fecha' => 'required|date',
-            'cl_viento' => 'required|numeric',
-            'cl_temp' => 'required|numeric',
-            'cl_hume' => 'required|numeric',
-            'cl_lluvia' => 'required|numeric',
+            'cl_viento' => 'nullable|numeric',
+            'cl_temp' => 'nullable|numeric',
+            'cl_hume' => 'nullable|numeric',
+            'cl_lluvia' => 'nullable|numeric',
         ]);
 
         $clima = Clima::create($request->all());

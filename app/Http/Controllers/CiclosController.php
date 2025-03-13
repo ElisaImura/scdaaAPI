@@ -30,7 +30,7 @@ class CiclosController extends Controller
             'ci_fechafin' => 'nullable|date',
             'cos_rendi' => 'nullable|numeric',
             'cos_hume' => 'nullable|numeric',
-            'sie_densidad' => 'nullable|integer',
+            'sie_densidad' => 'nullable|numeric',
         ]);
 
         $ciclo = Ciclos::create($request->all());

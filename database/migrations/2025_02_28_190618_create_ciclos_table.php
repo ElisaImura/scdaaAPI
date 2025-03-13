@@ -21,7 +21,7 @@ return new class extends Migration
             $table->date('ci_fechafin')->nullable();
             $table->float('cos_rendi')->nullable();
             $table->float('cos_hume')->nullable();
-            $table->integer('sie_densidad')->nullable();
+            $table->float('sie_densidad')->nullable();
             $table->timestamps();
 
             // Claves foráneas

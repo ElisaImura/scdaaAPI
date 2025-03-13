@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Actividades;
+use App\Models\Ciclos;
 use App\Models\Act_Ciclo;
 use App\Models\Act_Ciclo_Insumo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ActividadesController extends Controller
 {
@@ -37,7 +39,7 @@ class ActividadesController extends Controller
     {
         $validatedData = $request->validate([
             'tpAct_id' => 'required|exists:tipos_actividades,tpAct_id',
-            'ci_id' => 'required|exists:ciclos,ci_id', // Asegurar que el ciclo existe
+            'ci_id' => 'required|exists:ciclos,ci_id', // Ciclo relacionado
             'act_fecha' => 'required|string|max:191',
             'act_desc' => 'nullable|string|max:191',
             'act_estado' => 'required|integer|in:1,2,3',
@@ -46,39 +48,83 @@ class ActividadesController extends Controller
             'insumos' => 'array',
             'insumos.*.ins_id' => 'exists:insumos,ins_id',
             'insumos.*.ins_cant' => 'required|numeric|min:0',
+            // Datos de cosecha (opcionales)
+            'cos_rendi' => 'nullable|numeric|min:0',
+            'cos_hume' => 'nullable|numeric|min:0',
+            // Datos de siembra (opcionales)
+            'sie_densidad' => 'nullable|numeric|min:0',
+            // Datos de control de germinación (opcionales)
+            'con_cant' => 'nullable|integer|min:0',
+            'con_vigor' => 'nullable|integer|min:0',
         ]);
 
-        // 📌 Crear la actividad
-        $actividad = Actividades::create([
-            'tpAct_id' => $validatedData['tpAct_id'],
-            'act_fecha' => $validatedData['act_fecha'],
-            'act_desc' => $validatedData['act_desc'] ?? null,
-            'act_estado' => $validatedData['act_estado'],
-            'act_foto' => $validatedData['act_foto'] ?? null,
-        ]);
+        DB::beginTransaction();
 
-        // 📌 Crear la relación en act_ciclo
-        $actCiclo = Act_Ciclo::create([
-            'act_id' => $actividad->act_id,
-            'ci_id' => $validatedData['ci_id'],
-            'uss_id' => $validatedData['uss_id'],
-        ]);
+        try {
+            // 📌 Crear la actividad
+            $actividad = Actividades::create([
+                'tpAct_id' => $validatedData['tpAct_id'],
+                'act_fecha' => $validatedData['act_fecha'],
+                'act_desc' => $validatedData['act_desc'] ?? null,
+                'act_estado' => $validatedData['act_estado'],
+                'act_foto' => $validatedData['act_foto'] ?? null,
+            ]);
 
-        // 📌 Relacionar insumos con sus cantidades
-        if (!empty($validatedData['insumos'])) {
-            foreach ($validatedData['insumos'] as $insumo) {
-                Act_Ciclo_Insumo::create([
-                    'act_ci_id' => $actCiclo->act_ci_id, // 💡 Asegurando que sea el ID correcto
-                    'ins_id' => $insumo['ins_id'],
-                    'ins_cant' => $insumo['ins_cant'],
+            // 📌 Relacionar la actividad con un ciclo
+            $actCiclo = Act_Ciclo::create([
+                'act_id' => $actividad->act_id,
+                'ci_id' => $validatedData['ci_id'],
+                'uss_id' => $validatedData['uss_id'],
+            ]);
+
+            // 📌 Actualizar el ciclo si es una actividad de cosecha o siembra
+            $ciclo = Ciclos::find($validatedData['ci_id']);
+            if ($ciclo) {
+                $ciclo->update([
+                    'cos_rendi' => $validatedData['cos_rendi'] ?? $ciclo->cos_rendi,
+                    'cos_hume' => $validatedData['cos_hume'] ?? $ciclo->cos_hume,
+                    'sie_densidad' => $validatedData['sie_densidad'] ?? $ciclo->sie_densidad,
+                ]);
+
+                // 📌 Si los datos de cosecha están presentes, actualizar `ci_fechafin`
+                if (isset($validatedData['cos_rendi']) || isset($validatedData['cos_hume'])) {
+                    $ciclo->update([
+                        'ci_fechafin' => $validatedData['act_fecha'],
+                    ]);
+                }
+            }
+
+            // 📌 Guardar datos de Control de Germinación si están presentes
+            if (!empty($validatedData['con_cant']) && !empty($validatedData['con_vigor'])) {
+                ControlDet::create([
+                    'act_id' => $actividad->act_id,
+                    'con_cant' => $validatedData['con_cant'],
+                    'con_vigor' => $validatedData['con_vigor'],
                 ]);
             }
-        }
 
-        return response()->json([
-            'message' => 'Actividad creada con éxito',
-            'actividad' => $actividad->load('ciclo', 'ciclo.insumos'),
-        ], 201);
+            // 📌 Relacionar insumos con sus cantidades
+            if (!empty($validatedData['insumos'])) {
+                foreach ($validatedData['insumos'] as $insumo) {
+                    Act_Ciclo_Insumo::create([
+                        'act_ci_id' => $actCiclo->act_ci_id,
+                        'ins_id' => $insumo['ins_id'],
+                        'ins_cant' => $insumo['ins_cant'],
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Actividad creada con éxito',
+                'actividad' => $actividad->load('ciclo', 'ciclo.insumos'),
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al guardar la actividad', 'message' => $e->getMessage()], 500);
+        }
     }
 
     /**
