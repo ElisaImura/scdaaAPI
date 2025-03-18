@@ -30,4 +30,9 @@ class Actividades extends Model
     {
         return $this->hasOne(Act_Ciclo::class, 'act_id', 'act_id');
     }
+
+    public function controlGerminacion()
+    {
+        return $this->hasOne(Control_Det::class, 'act_id', 'act_id');
+    }
 }

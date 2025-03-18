@@ -57,6 +57,12 @@ class Act_Ciclo extends Model
         );
     }
 
+    public function datosCiclo()
+    {
+        return $this->hasOne(Ciclos::class, 'ci_id', 'ci_id')
+            ->select(['ci_id', 'cos_rendi', 'cos_hume', 'sie_densidad']);
+    }
+
     public function actCiclos()
     {
         return $this->hasMany(User::class, 'uss_id', 'uss_id');

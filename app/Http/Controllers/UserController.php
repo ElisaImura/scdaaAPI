@@ -49,7 +49,7 @@ class UserController extends Controller
 
     public function show(string $id)
     {
-        $user = User::with('permisos')->findOrFail($id);
+        $user = User::with(['permisos', 'rol'])->findOrFail($id);
         
         return response()->json($user);
     }
@@ -99,18 +99,26 @@ class UserController extends Controller
     //this shit doesn't work yet
     public function asignarPermisos(Request $request, string $id)
     {
+        // ✅ Verificar si el usuario está autenticado
         $admin = auth()->user();
-
+        
         if (!$admin) {
             return response()->json(['message' => 'No se encontró un usuario autenticado.'], 401);
         }
-    
+
+        // ✅ Verificar si el usuario autenticado es un administrador
         if ($admin->rol_id !== 1) {
             return response()->json(['message' => 'No tienes permisos para realizar esta acción.'], 403);
         }
 
-        $user = User::findOrFail($id);
+        // ✅ Buscar el usuario al que se le asignarán permisos
+        $user = User::find($id);
 
+        if (!$user) {
+            return response()->json(['message' => 'Usuario no encontrado.'], 404);
+        }
+
+        // ✅ Si el usuario es un administrador, se asignan todos los permisos
         if ($user->rol_id == 1) {
             $user->permisos()->sync(Permisos::pluck('perm_id'));
             return response()->json([
@@ -119,11 +127,13 @@ class UserController extends Controller
             ]);
         }
 
+        // ✅ Validar que los permisos sean un array válido y existan en la tabla
         $request->validate([
             'permisos' => 'required|array',
             'permisos.*' => 'exists:permisos,perm_id',
         ]);
 
+        // ✅ Asignar los permisos al usuario
         $user->permisos()->sync($request->permisos);
 
         return response()->json([

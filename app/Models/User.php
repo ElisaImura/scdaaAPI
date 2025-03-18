@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\Permisos;
+use App\Models\Roles;
 
 class User extends Authenticatable
 {
@@ -39,7 +40,7 @@ class User extends Authenticatable
      */
     public function rol()
     {
-        return $this->belongsTo(Role::class, 'rol_id');
+        return $this->belongsTo(Roles::class, 'rol_id');
     }
 
     /**
