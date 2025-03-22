@@ -11,8 +11,8 @@ return new class extends Migration {
             $table->id('up_id');
             $table->unsignedBigInteger('uss_id');
             $table->foreign('uss_id')->references('uss_id')->on('users')->onDelete('cascade');
-            $table->unsignedBigInteger('perm_id');
-            $table->foreign('perm_id')->references('perm_id')->on('permisos')->onDelete('cascade');
+            $table->unsignedBigInteger('perm_id')->nullable();
+            $table->foreign('perm_id')->references('perm_id')->on('permisos')->onDelete('set null');
             $table->timestamps();
         });
     }

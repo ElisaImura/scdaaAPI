@@ -11,6 +11,7 @@ use App\Http\Controllers\TiposVariedadController;
 use App\Http\Controllers\InsumosController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RolesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -58,7 +59,9 @@ Route::apiResource("actividades", ActividadesController::class);
 
 Route::apiResource("control_det", ControlDetController::class);
 
+//Roles
 
+Route::get("/roles", [RolesController::class, 'index']);
 
 //Usuarios
 

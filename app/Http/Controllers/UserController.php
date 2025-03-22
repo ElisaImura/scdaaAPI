@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('permisos')->get();
+        $users = User::with(['permisos', 'rol'])->get();
         
         $users->each(function ($user) {
             if ($user->permisos->isEmpty()) {

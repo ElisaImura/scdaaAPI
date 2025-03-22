@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('insumos', function (Blueprint $table) {
             $table->id('ins_id'); // Clave primaria
             $table->string('ins_desc', 191);
+            $table->string('ins_unidad_medida', 50);
             $table->timestamps();
         });
     }

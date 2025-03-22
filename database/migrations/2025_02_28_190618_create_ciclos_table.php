@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('ciclos', function (Blueprint $table) {
             $table->id('ci_id');
-            $table->unsignedBigInteger('tpVar_id');
-            $table->unsignedBigInteger('uss_id');
-            $table->unsignedBigInteger('lot_id');
+            $table->unsignedBigInteger('tpVar_id')->nullable();
+            $table->unsignedBigInteger('uss_id')->nullable();
+            $table->unsignedBigInteger('lot_id')->nullable();
             $table->string('ci_nombre');
             $table->date('ci_fechaini');
             $table->date('ci_fechafin')->nullable();
@@ -25,9 +25,9 @@ return new class extends Migration
             $table->timestamps();
 
             // Claves foráneas
-            $table->foreign('tpVar_id')->references('tpVar_id')->on('tipos_variedad')->onDelete('cascade');
-            $table->foreign('uss_id')->references('uss_id')->on('users')->onDelete('cascade');
-            $table->foreign('lot_id')->references('lot_id')->on('lotes')->onDelete('cascade');
+            $table->foreign('tpVar_id')->references('tpVar_id')->on('tipos_variedad')->onDelete('set null');
+            $table->foreign('uss_id')->references('uss_id')->on('users')->onDelete('set null');
+            $table->foreign('lot_id')->references('lot_id')->on('lotes')->onDelete('set null');
         });
     }
 

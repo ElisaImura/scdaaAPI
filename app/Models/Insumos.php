@@ -13,5 +13,5 @@ class Insumos extends Model
     protected $primaryKey = 'ins_id'; 
     public $timestamps = true;
 
-    protected $fillable = ['ins_desc'];
+    protected $fillable = ['ins_desc', 'ins_unidad_medida'];
 }

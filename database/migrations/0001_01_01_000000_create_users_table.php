@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id('uss_id'); // Se mantiene la clave primaria
-            $table->unsignedBigInteger('rol_id');
-            $table->foreign('rol_id')->references('rol_id')->on('roles')->onDelete('cascade');
+            $table->unsignedBigInteger('rol_id')->nullable();
+            $table->foreign('rol_id')->references('rol_id')->on('roles')->onDelete('set null');
             $table->string('uss_nombre');
             $table->string('uss_email')->unique();
             $table->string('uss_clave');
