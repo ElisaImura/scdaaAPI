@@ -309,14 +309,70 @@ class ActividadesController extends Controller
      */
     public function destroy($id)
     {
-        $actividad = Actividades::find($id);
+        DB::beginTransaction();
 
-        if (!$actividad) {
-            return response()->json(['message' => 'Actividad no encontrada'], 404);
+        try {
+            $actividad = Actividades::find($id);
+
+            if (!$actividad) {
+                return response()->json(['message' => 'Actividad no encontrada'], 404);
+            }
+
+            $tipoActividad = $actividad->tpAct_id;
+
+            $actCiclo = Act_Ciclo::where('act_id', $actividad->act_id)->first();
+
+            if ($actCiclo) {
+                $ci_id = $actCiclo->ci_id;
+
+                // Eliminar relación con insumos
+                Act_Ciclo_Insumo::where('act_ci_id', $actCiclo->act_ci_id)->delete();
+
+                // Eliminar relación act_ciclo
+                $actCiclo->delete();
+
+                // Si es control de germinación, eliminar datos específicos
+                if ($tipoActividad == 4) {
+                    Control_Det::where('act_id', $actividad->act_id)->delete();
+                }
+
+                // Verificar si quedan otras actividades de siembra o cosecha en ese ciclo
+                $actividadesRestantes = Actividades::whereHas('ciclo', function ($query) use ($ci_id) {
+                    $query->where('ci_id', $ci_id);
+                })->where('act_id', '!=', $actividad->act_id)->get();
+
+                $haySiembra = $actividadesRestantes->contains('tpAct_id', 3);
+                $hayCosecha = $actividadesRestantes->contains('tpAct_id', 6);
+
+                $ciclo = Ciclos::find($ci_id);
+                if ($ciclo) {
+                    $actualizaciones = [];
+
+                    if ($tipoActividad == 3 && !$haySiembra) {
+                        $actualizaciones['sie_densidad'] = null;
+                    }
+
+                    if ($tipoActividad == 6 && !$hayCosecha) {
+                        $actualizaciones['cos_rendi'] = null;
+                        $actualizaciones['cos_hume'] = null;
+                        $actualizaciones['ci_fechafin'] = null;
+                    }
+
+                    if (!empty($actualizaciones)) {
+                        $ciclo->update($actualizaciones);
+                    }
+                }
+            }
+
+            $actividad->delete();
+
+            DB::commit();
+
+            return response()->json(['message' => 'Actividad eliminada con éxito']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Error al eliminar la actividad', 'message' => $e->getMessage()], 500);
         }
-
-        $actividad->delete();
-
-        return response()->json(['message' => 'Actividad eliminada con éxito']);
     }
 }

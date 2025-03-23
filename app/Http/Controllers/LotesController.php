@@ -51,7 +51,7 @@ class LotesController extends Controller
     {
         $fields = $request->validate([
             'lot_nombre' => 'required|max:255',
-            'lot_ubi' => 'required|max:255'
+            'lot_ubi' => 'nullable|max:255'
         ]);
 
         $lote->update($fields);
