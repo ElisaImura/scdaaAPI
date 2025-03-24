@@ -17,63 +17,57 @@ use Illuminate\Support\Facades\Route;
 
 //Lotes
 
-Route::apiResource("lotes", LotesController::class);
-
-//Insumos
-
-Route::apiResource("insumos", InsumosController::class);
-
-//Tipos_Actividad
-
-Route::apiResource("tipos/actividades", TiposActividadesController::class);
-
-//Tipos_Cultivo
-
-Route::apiResource("tipos/cultivo", TiposCultivoController::class);
-
-//Tipos_Variedad
-
-Route::apiResource("tipos/variedad", TiposVariedadController::class);
-
-//Variedades por cultivo
-
-Route::get('/variedades/{tpCul_id}', [TiposVariedadController::class, 'getVariedadesPorCultivo']);
-
-//Clima
-
-Route::apiResource("clima", ClimaController::class);
-
-//Ciclo
-
-Route::apiResource("ciclos", CiclosController::class);
-
-//Ciclos por Lote
-
-Route::get('/ciclos/lote/{lotId}', [CiclosController::class, 'getCiclosByLote']);
-
-//Actividades
-
-Route::apiResource("actividades", ActividadesController::class);
-
-//Control_det
-
-Route::apiResource("control_det", ControlDetController::class);
-
-//Roles
-
-Route::get("/roles", [RolesController::class, 'index']);
-
-//Usuarios
-
-Route::apiResource("usuarios", UserController::class);
-
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::apiResource("lotes", LotesController::class);
+
+    //Insumos
+    Route::apiResource("insumos", InsumosController::class);
+
+    //Tipos_Actividad
+    Route::apiResource("tipos/actividades", TiposActividadesController::class);
+
+    //Tipos_Cultivo
+    Route::apiResource("tipos/cultivo", TiposCultivoController::class);
+
+    //Tipos_Variedad
+    Route::apiResource("tipos/variedad", TiposVariedadController::class);
+
+    //Variedades por cultivo
+    Route::get('/variedades/{tpCul_id}', [TiposVariedadController::class, 'getVariedadesPorCultivo']);
+
+    //Clima
+    Route::apiResource("clima", ClimaController::class);
+
+    //Ciclo
+    Route::apiResource("ciclos", CiclosController::class);
+
+    //Ciclos por Lote
+    Route::get('/ciclos/lote/{lotId}', [CiclosController::class, 'getCiclosByLote']);
+
+    //Actividades
+    Route::apiResource("actividades", ActividadesController::class);
+
+    //Control_det
+    Route::apiResource("control_det", ControlDetController::class);
+
+    //Roles
+    Route::get("/roles", [RolesController::class, 'index']);
+
+    //Permisos
+    Route::get("/permisos", [RolesController::class, 'permisos']);
+
+    //Usuarios
+    Route::apiResource("usuarios", UserController::class);
+
+    //Asignar permiso
     Route::post('/usuarios/{id}/permisos', [UserController::class, 'asignarPermisos']);
+
+    //Eliminar permiso
+    Route::delete('/usuarios/{id}/permisos', [UserController::class, 'quitarPermisos']);
+
+    //Auth logout
+    Route::post('/logout',[AuthController::class, 'logout']);
 });
 
-
-//Auth
-
+//Auth login
 Route::post('/login',[AuthController::class, 'login']);
-
-Route::post('/logout',[AuthController::class, 'logout'])->middleware('auth:sanctum');
