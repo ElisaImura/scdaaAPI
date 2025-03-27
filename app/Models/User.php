@@ -50,5 +50,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Permisos::class, 'usuario_permiso', 'uss_id', 'perm_id');
     }
+
+    public function getAuthIdentifier()
+    {
+        return $this->{$this->primaryKey}; // devuelve uss_id
+    }
     
 }

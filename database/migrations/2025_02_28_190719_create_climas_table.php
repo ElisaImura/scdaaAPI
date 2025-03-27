@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('climas', function (Blueprint $table) {
             $table->id('cl_id');
             $table->date('cl_fecha');
-            $table->float('cl_viento');
-            $table->float('cl_temp');
-            $table->float('cl_hume');
-            $table->float('cl_lluvia');
+            $table->float('cl_viento')->nullable();
+            $table->float('cl_temp')->nullable();
+            $table->float('cl_hume')->nullable();
+            $table->float('cl_lluvia')->nullable();
             $table->timestamps();
         });
     }

@@ -9,10 +9,16 @@ class ClimaController extends Controller
 {
     /**
      * Muestra una lista de registros de clima.
+     * Se puede filtrar por lote con ?lot_id=1
      */
-    public function index()
+    public function index(Request $request)
     {
-        $climas = Clima::all();
+        if ($request->has('lot_id')) {
+            $climas = Clima::where('lot_id', $request->lot_id)->get();
+        } else {
+            $climas = Clima::all();
+        }
+
         return response()->json($climas);
     }
 
@@ -59,6 +65,7 @@ class ClimaController extends Controller
             'cl_temp' => 'sometimes|numeric',
             'cl_hume' => 'sometimes|numeric',
             'cl_lluvia' => 'sometimes|numeric',
+            'lot_id' => 'sometimes|exists:lotes,lot_id',
         ]);
 
         $clima->update($request->all());
@@ -79,6 +86,6 @@ class ClimaController extends Controller
 
         $clima->delete();
 
-        return response()->json(['message' => 'Datos eliminado correctamente']);
+        return response()->json(['message' => 'Dato eliminado correctamente']);
     }
 }

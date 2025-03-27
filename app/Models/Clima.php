@@ -4,10 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable as AuditableContract;
+use OwenIt\Auditing\Auditable as AuditableTrait;
+use OwenIt\Auditing\Models\Audit;
+use Illuminate\Support\Facades\Auth;
 
-class Clima extends Model
+class Clima extends Model implements AuditableContract
 {
-    use HasFactory;
+    use HasFactory, AuditableTrait;
 
     protected $primaryKey = 'cl_id';
     
@@ -18,4 +22,17 @@ class Clima extends Model
         'cl_hume',
         'cl_lluvia'
     ];
+
+    protected $auditInclude = [
+        'cl_fecha',
+        'cl_viento',
+        'cl_temp',
+        'cl_hume',
+        'cl_lluvia'
+    ];
 }
+
+Audit::creating(function ($audit) {
+    $audit->user_type = Auth::user()?->rol?->rol_desc;
+    $audit->user_id = Auth::id();
+});

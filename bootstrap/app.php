@@ -17,3 +17,15 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
+
+    $app->register(OwenIt\Auditing\AuditingServiceProvider::class);
+
+    $app->register(Irazasyed\Larasupport\Providers\ArtisanServiceProvider::class);
+
+    $app->withFacades();
+
+    $app->withEloquent();
+
+    $app->configure('audit');
+
+    return $app;

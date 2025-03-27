@@ -44,6 +44,11 @@ class Act_Ciclo extends Model
         );
     }
 
+    public function insumosAsignados()
+    {
+        return $this->hasMany(Act_Ciclo_Insumo::class, 'act_ci_id');
+    }
+
     // 💡 Nueva relación con el lote a través del ciclo
     public function lote()
     {

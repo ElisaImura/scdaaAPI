@@ -3,6 +3,7 @@
 use App\Http\Controllers\LotesController;
 use App\Http\Controllers\ClimaController;
 use App\Http\Controllers\CiclosController;
+use App\Http\Controllers\ReportesController;
 use App\Http\Controllers\ControlDetController;
 use App\Http\Controllers\ActividadesController;
 use App\Http\Controllers\TiposActividadesController;
@@ -67,6 +68,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     //Auth logout
     Route::post('/logout',[AuthController::class, 'logout']);
+
+    //Reportes
+    Route::get('/reportes/produccion', [ReportesController::class, 'produccionAgricola']);
+    Route::get('/reportes/lluvia', [ReportesController::class, 'lluviaPorFechas']);
+
 });
 
 //Auth login
