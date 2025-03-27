@@ -18,6 +18,11 @@ return new class extends Migration
             $table->float('cl_temp')->nullable();
             $table->float('cl_hume')->nullable();
             $table->float('cl_lluvia')->nullable();
+
+            // Clave foránea del lote
+            $table->unsignedBigInteger('lot_id');
+            $table->foreign('lot_id')->references('lot_id')->on('lotes')->onDelete('cascade');
+
             $table->timestamps();
         });
     }

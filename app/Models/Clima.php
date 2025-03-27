@@ -20,7 +20,8 @@ class Clima extends Model implements AuditableContract
         'cl_viento',
         'cl_temp',
         'cl_hume',
-        'cl_lluvia'
+        'cl_lluvia',
+        'lot_id'
     ];
 
     protected $auditInclude = [
@@ -28,8 +29,14 @@ class Clima extends Model implements AuditableContract
         'cl_viento',
         'cl_temp',
         'cl_hume',
-        'cl_lluvia'
+        'cl_lluvia',
+        'lot_id'
     ];
+
+    public function lote()
+    {
+        return $this->belongsTo(Lote::class, 'lot_id', 'lot_id');
+    }
 }
 
 Audit::creating(function ($audit) {

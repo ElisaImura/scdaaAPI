@@ -28,14 +28,14 @@ class UserController extends Controller
         $request->validate([
             'rol_id' => 'required|exists:roles,rol_id',
             'uss_nombre' => 'required|string|max:255',
-            'uss_email' => 'required|email|unique:users,uss_email',
+            'email' => 'required|email|unique:users,email',
             'uss_clave' => 'required|string|min:6',
         ]);
 
         $user = User::create([
             'rol_id' => $request->rol_id,
             'uss_nombre' => $request->uss_nombre,
-            'uss_email' => $request->uss_email,
+            'email' => $request->email,
             'uss_clave' => Hash::make($request->uss_clave),
         ]);
 
@@ -61,12 +61,12 @@ class UserController extends Controller
         $request->validate([
             'rol_id' => 'sometimes|exists:roles,rol_id',
             'uss_nombre' => 'sometimes|string|max:255',
-            'uss_email' => ['sometimes', 'email', Rule::unique('users', 'uss_email')->ignore($id, 'uss_id')],
+            'email' => ['sometimes', 'email', Rule::unique('users', 'email')->ignore($id, 'uss_id')],
             'uss_clave' => 'sometimes|string|min:6',
         ]);
     
         // Solo actualizar los campos enviados en la request
-        $data = $request->only(['rol_id', 'uss_nombre', 'uss_email']);
+        $data = $request->only(['rol_id', 'uss_nombre', 'email']);
     
         // Si se envió una clave nueva, la encriptamos antes de actualizar
         if ($request->filled('uss_clave')) {

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('rol_id')->nullable();
             $table->foreign('rol_id')->references('rol_id')->on('roles')->onDelete('set null');
             $table->string('uss_nombre');
-            $table->string('uss_email')->unique();
+            $table->string('email')->unique();
             $table->string('uss_clave');
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

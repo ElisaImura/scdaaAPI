@@ -33,6 +33,7 @@ class ClimaController extends Controller
             'cl_temp' => 'nullable|numeric',
             'cl_hume' => 'nullable|numeric',
             'cl_lluvia' => 'nullable|numeric',
+            'lot_id' => 'required|exists:lotes,lot_id',
         ]);
 
         $clima = Clima::create($request->all());

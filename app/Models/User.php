@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Contracts\Auth\CanResetPassword;
+use App\Notifications\ResetPasswordNotification;
 use App\Models\Permisos;
 use App\Models\Roles;
 
@@ -19,7 +21,7 @@ class User extends Authenticatable
     protected $fillable = [
         'rol_id',
         'uss_nombre',
-        'uss_email',
+        'email',
         'uss_clave',
     ];
 
@@ -55,5 +57,9 @@ class User extends Authenticatable
     {
         return $this->{$this->primaryKey}; // devuelve uss_id
     }
-    
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
+    }
 }

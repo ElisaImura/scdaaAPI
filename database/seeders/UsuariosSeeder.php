@@ -17,7 +17,7 @@ class UsuariosSeeder extends Seeder
             [
                 'rol_id' => 1, // Rol de administrador
                 'uss_nombre' => 'Admin User',
-                'uss_email' => 'admin@example.com',
+                'email' => 'admin@example.com',
                 'uss_clave' => Hash::make('admin123'), // Contraseña encriptada
                 'created_at' => now(),
                 'updated_at' => now(),

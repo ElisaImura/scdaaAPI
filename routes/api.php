@@ -13,6 +13,7 @@ use App\Http\Controllers\InsumosController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RolesController;
+use App\Http\Controllers\Auth\PasswordResetController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -73,7 +74,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/reportes/produccion', [ReportesController::class, 'produccionAgricola']);
     Route::get('/reportes/lluvia', [ReportesController::class, 'lluviaPorFechas']);
 
+    //Cambiar password
+    Route::post('/change-password', [PasswordResetController::class, 'changePassword']);
+
 });
 
 //Auth login
 Route::post('/login',[AuthController::class, 'login']);
+
+//Password reset
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [PasswordResetController::class, 'reset']);
+

@@ -10,11 +10,11 @@ class AuthController extends Controller
 {
     public function login(Request $request){
         $request->validate([
-            'uss_email'=> 'required|email|exists:users,uss_email',
+            'email'=> 'required|email|exists:users,email',
             'uss_clave' => 'required'
         ]);
     
-        $user = User::where('uss_email', $request->uss_email)->first();
+        $user = User::where('email', $request->email)->first();
     
         if (!$user || !Hash::check($request->uss_clave, $user->uss_clave)) {
             return response()->json([
@@ -22,7 +22,7 @@ class AuthController extends Controller
             ], 401);
         }
     
-        $token = $user->createToken($user->uss_email);
+        $token = $user->createToken($user->email);
     
         return response()->json([
             'user' => $user,
