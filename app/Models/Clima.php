@@ -35,7 +35,7 @@ class Clima extends Model implements AuditableContract
 
     public function lote()
     {
-        return $this->belongsTo(Lote::class, 'lot_id', 'lot_id');
+        return $this->belongsTo(Lotes::class, 'lot_id', 'lot_id');
     }
 }
 

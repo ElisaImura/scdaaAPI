@@ -14,13 +14,13 @@ class ClimaController extends Controller
     public function index(Request $request)
     {
         if ($request->has('lot_id')) {
-            $climas = Clima::where('lot_id', $request->lot_id)->get();
+            $climas = Clima::with('lote')->where('lot_id', $request->lot_id)->get();
         } else {
-            $climas = Clima::all();
+            $climas = Clima::with('lote')->get();
         }
-
+    
         return response()->json($climas);
-    }
+    }    
 
     /**
      * Almacena un nuevo registro de clima.

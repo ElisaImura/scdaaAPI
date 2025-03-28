@@ -9,7 +9,7 @@ class ReportesController extends Controller
 {
     public function produccionAgricola()
     {
-        // 1. Producción por cultivo y por lote
+        // 1. Producción por cultivo y por lote (solo ciclos finalizados)
         $rendimiento = DB::table('ciclos')
             ->select(
                 'tipos_cultivo.tpCul_nombre as cultivo',
@@ -19,10 +19,11 @@ class ReportesController extends Controller
             ->join('tipos_variedad', 'ciclos.tpVar_id', '=', 'tipos_variedad.tpVar_id')
             ->join('tipos_cultivo', 'tipos_variedad.tpCul_id', '=', 'tipos_cultivo.tpCul_id')
             ->join('lotes', 'ciclos.lot_id', '=', 'lotes.lot_id')
+            ->whereNotNull('ciclos.ci_fechafin')
             ->groupBy('tipos_cultivo.tpCul_nombre', 'lotes.lot_nombre')
             ->get();
-
-        // 2. Promedio de producción por cultivo y variedad
+    
+        // 2. Promedio de producción por cultivo y variedad (solo ciclos finalizados)
         $promedio = DB::table('ciclos')
             ->select(
                 'tipos_cultivo.tpCul_nombre as cultivo',
@@ -31,10 +32,11 @@ class ReportesController extends Controller
             )
             ->join('tipos_variedad', 'ciclos.tpVar_id', '=', 'tipos_variedad.tpVar_id')
             ->join('tipos_cultivo', 'tipos_variedad.tpCul_id', '=', 'tipos_cultivo.tpCul_id')
+            ->whereNotNull('ciclos.ci_fechafin')
             ->groupBy('tipos_cultivo.tpCul_nombre', 'tipos_variedad.tpVar_nombre')
             ->get();
-
-        // 3. Comparativa entre ciclos
+    
+        // 3. Comparativa entre ciclos (solo ciclos finalizados)
         $porCiclo = DB::table('ciclos')
             ->select(
                 'ciclos.ci_nombre as ciclo',
@@ -43,10 +45,11 @@ class ReportesController extends Controller
             )
             ->join('tipos_variedad', 'ciclos.tpVar_id', '=', 'tipos_variedad.tpVar_id')
             ->join('tipos_cultivo', 'tipos_variedad.tpCul_id', '=', 'tipos_cultivo.tpCul_id')
+            ->whereNotNull('ciclos.ci_fechafin')
             ->groupBy('ciclos.ci_nombre', 'tipos_cultivo.tpCul_nombre')
             ->get();
-
-        // 4. Cantidad de insumos utilizados en todas las actividades de todos los ciclos
+    
+        // 4. Cantidad de insumos utilizados (sin filtro, ya que se refiere al total acumulado)
         $insumos = DB::table('act_ciclo_insumo')
             ->select(
                 'insumos.ins_desc as insumo',
@@ -57,8 +60,8 @@ class ReportesController extends Controller
             ->groupBy('insumos.ins_desc', 'insumos.ins_unidad_medida')
             ->orderByDesc('total_utilizado')
             ->get();
-        
-        // 5. Cantidad de días con lluvia por ciclo
+    
+        // 5. Días con lluvia por ciclo (opcional: solo si el ciclo terminó)
         $lluviaPorCiclo = DB::table('ciclos')
             ->select(
                 'ciclos.ci_nombre as ciclo',
@@ -70,9 +73,10 @@ class ReportesController extends Controller
                     AND climas.cl_lluvia IS NOT NULL
                 ) as dias_lluvia')
             )
+            ->whereNotNull('ciclos.ci_fechafin')
             ->get();
-
-        // 6. Relación clima-productividad: lluvia + rendimiento por ciclo
+    
+        // 6. Relación clima-producción (solo ciclos finalizados)
         $climaYProduccion = DB::table('ciclos')
             ->select(
                 'ciclos.ci_nombre as ciclo',
@@ -85,8 +89,9 @@ class ReportesController extends Controller
                     AND climas.cl_lluvia IS NOT NULL
                 ) as dias_lluvia')
             )
-            ->get();  
-
+            ->whereNotNull('ciclos.ci_fechafin')
+            ->get();
+    
         return response()->json([
             'rendimiento_por_lote' => $rendimiento,
             'promedio_por_variedad' => $promedio,
@@ -95,26 +100,31 @@ class ReportesController extends Controller
             'dias_lluvia_por_ciclo' => $lluviaPorCiclo,
             'relacion_clima_productividad' => $climaYProduccion,
         ]);
-    }
+    }    
 
     public function lluviaPorFechas(Request $request)
     {
         $inicio = $request->query('inicio');
         $fin = $request->query('fin');
-
+        $loteId = $request->query('loteId');
+    
         if (!$inicio || !$fin) {
             return response()->json([
                 'error' => 'Parámetros "inicio" y "fin" son requeridos.'
             ], 400);
         }
-
-        $lluviaPorDia = DB::table('climas')
-            ->select('cl_fecha as fecha', 'cl_lluvia as total_lluvia')
+    
+        $query = DB::table('climas')
+            ->select('cl_fecha as fecha', 'cl_lluvia as total_lluvia', 'lot_id')
             ->whereBetween('cl_fecha', [$inicio, $fin])
-            ->whereNotNull('cl_lluvia')
-            ->orderBy('cl_fecha')
-            ->get();
-
+            ->whereNotNull('cl_lluvia');
+    
+        if ($loteId) {
+            $query->where('lot_id', $loteId);
+        }
+    
+        $lluviaPorDia = $query->orderBy('cl_fecha')->get();
+    
         return response()->json($lluviaPorDia);
-    }
+    }    
 }

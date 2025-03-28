@@ -31,7 +31,7 @@ class PasswordResetController extends Controller
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
-            'uss_clave' => 'required|min:8|confirmed',
+            'uss_clave' => 'required|min:6|confirmed',
         ]);
 
         $status = Password::broker()->reset(
