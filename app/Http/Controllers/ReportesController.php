@@ -61,19 +61,22 @@ class ReportesController extends Controller
             ->orderByDesc('total_utilizado')
             ->get();
     
-        // 5. Días con lluvia por ciclo (opcional: solo si el ciclo terminó)
+        // 5. Días con lluvia por ciclo considerando lote
         $lluviaPorCiclo = DB::table('ciclos')
             ->select(
                 'ciclos.ci_nombre as ciclo',
-                DB::raw('(
-                    SELECT COUNT(*) 
-                    FROM climas 
-                    WHERE climas.cl_fecha BETWEEN ciclos.ci_fechaini 
-                        AND COALESCE(ciclos.ci_fechafin, CURRENT_DATE)
-                    AND climas.cl_lluvia IS NOT NULL
-                ) as dias_lluvia')
+                'lotes.lot_nombre as lote',
+                DB::raw('COUNT(climas.cl_fecha) as dias_lluvia')
             )
+            ->join('climas', function ($join) {
+                $join->on('climas.cl_fecha', '>=', 'ciclos.ci_fechaini')
+                    ->on('climas.cl_fecha', '<=', DB::raw('COALESCE(ciclos.ci_fechafin, CURRENT_DATE)'))
+                    ->on('climas.lot_id', '=', 'ciclos.lot_id');
+            })
+            ->join('lotes', 'ciclos.lot_id', '=', 'lotes.lot_id')
             ->whereNotNull('ciclos.ci_fechafin')
+            ->whereNotNull('climas.cl_lluvia')
+            ->groupBy('ciclos.ci_nombre', 'lotes.lot_nombre')
             ->get();
     
         // 6. Relación clima-producción (solo ciclos finalizados)

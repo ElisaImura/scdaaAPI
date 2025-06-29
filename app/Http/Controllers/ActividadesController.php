@@ -174,7 +174,7 @@ class ActividadesController extends Controller
             'tpAct_id' => 'sometimes|exists:tipos_actividades,tpAct_id',
             'ci_id' => 'sometimes|exists:ciclos,ci_id',
             'act_fecha' => 'sometimes|string|max:191',
-            'act_desc' => 'sometimes|string|max:191',
+            'act_desc' => 'sometimes|nullable|string|max:191',
             'act_estado' => 'sometimes|integer|in:1,2,3',
             'act_foto' => 'nullable|string|max:191',
             'uss_id' => 'sometimes|exists:users,uss_id',
@@ -225,7 +225,7 @@ class ActividadesController extends Controller
             }
     
             // 📌 Actualizar la actividad
-            $actividad->update(array_filter($validatedData));
+            $actividad->update($validatedData);
     
             // 📌 Si cambió el tipo de actividad, limpiar datos anteriores
             if (isset($validatedData['tpAct_id']) && $validatedData['tpAct_id'] != $tipoAnterior) {
