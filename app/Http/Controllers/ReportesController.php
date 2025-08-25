@@ -66,7 +66,7 @@ class ReportesController extends Controller
             ->select(
                 'ciclos.ci_nombre as ciclo',
                 'lotes.lot_nombre as lote',
-                DB::raw('COUNT(climas.cl_fecha) as dias_lluvia')
+                DB::raw('COUNT(DISTINCT climas.cl_fecha) as dias_lluvia')
             )
             ->join('climas', function ($join) {
                 $join->on('climas.cl_fecha', '>=', 'ciclos.ci_fechaini')
@@ -75,7 +75,8 @@ class ReportesController extends Controller
             })
             ->join('lotes', 'ciclos.lot_id', '=', 'lotes.lot_id')
             ->whereNotNull('ciclos.ci_fechafin')
-            ->whereNotNull('climas.cl_lluvia')
+            // ⬇️ Excluye vacíos y 0 (maneja '0', '0.0', '0,0', espacios)
+            ->whereRaw("CAST(REPLACE(NULLIF(TRIM(climas.cl_lluvia), ''), ',', '.') AS DECIMAL(10,2)) > 0")
             ->groupBy('ciclos.ci_nombre', 'lotes.lot_nombre')
             ->get();
     
@@ -84,13 +85,13 @@ class ReportesController extends Controller
             ->select(
                 'ciclos.ci_nombre as ciclo',
                 'ciclos.cos_rendi as produccion_total',
-                DB::raw('(
-                    SELECT COUNT(*) 
-                    FROM climas 
-                    WHERE climas.cl_fecha BETWEEN ciclos.ci_fechaini 
-                        AND COALESCE(ciclos.ci_fechafin, CURRENT_DATE)
-                    AND climas.cl_lluvia IS NOT NULL
-                ) as dias_lluvia')
+                DB::raw("(
+                    SELECT COUNT(DISTINCT climas.cl_fecha)
+                    FROM climas
+                    WHERE climas.cl_fecha BETWEEN ciclos.ci_fechaini
+                    AND COALESCE(ciclos.ci_fechafin, CURRENT_DATE)
+                    AND CAST(REPLACE(NULLIF(TRIM(climas.cl_lluvia), ''), ',', '.') AS DECIMAL(10,2)) > 0
+                ) as dias_lluvia")
             )
             ->whereNotNull('ciclos.ci_fechafin')
             ->get();
@@ -120,7 +121,7 @@ class ReportesController extends Controller
         $query = DB::table('climas')
             ->select('cl_fecha as fecha', 'cl_lluvia as total_lluvia', 'lot_id')
             ->whereBetween('cl_fecha', [$inicio, $fin])
-            ->whereNotNull('cl_lluvia');
+            ->whereRaw("CAST(REPLACE(NULLIF(TRIM(cl_lluvia), ''), ',', '.') AS DECIMAL(10,2)) > 0");
     
         if ($loteId) {
             $query->where('lot_id', $loteId);
